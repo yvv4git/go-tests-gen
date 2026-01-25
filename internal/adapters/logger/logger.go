@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/yvv4git/go-tests-gen/internal/generator/ports"
+	"github.com/yvv4git/go-tests-gen/internal/ports"
 )
 
 type SlogAdapter struct {

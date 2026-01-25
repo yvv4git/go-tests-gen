@@ -3,7 +3,7 @@ package generator
 import (
 	"context"
 
-	"github.com/yvv4git/go-tests-gen/internal/generator/ports"
+	"github.com/yvv4git/go-tests-gen/internal/ports"
 )
 
 type Generator struct {
