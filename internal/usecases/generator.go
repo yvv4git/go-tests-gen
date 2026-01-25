@@ -16,7 +16,12 @@ func NewGenerator(log ports.Logger) *Generator {
 	}
 }
 
-func (g *Generator) Gen(ctx context.Context) error {
+func (g *Generator) Generate(ctx context.Context) error {
 	// todo: implement
+	// 1. Find in projects functions without tests code coverage.
+	// 2. Find files, read files where func placed.
+	// 3. Find tests file for functions.
+	// 4. Send files to LLM and get tests code.
+	// 5. Get code from LLM, save to file.
 	return nil
 }
