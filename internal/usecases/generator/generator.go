@@ -6,17 +6,30 @@ import (
 	"github.com/yvv4git/go-tests-gen/internal/ports"
 )
 
+//
+// Usecase - Generator
+//
+
 type Generator struct {
-	log ports.Logger
+	log     ports.Logger
+	scanner ports.Scanner
 }
 
-func NewGenerator(log ports.Logger) *Generator {
+func NewGenerator(log ports.Logger, scanner ports.Scanner) *Generator {
 	return &Generator{
-		log: log,
+		log:     log,
+		scanner: scanner,
 	}
 }
 
 func (g *Generator) Generate(ctx context.Context) error {
+	if err := g.scanner.Scan(ctx); err != nil {
+		return err
+	}
+
+	fnList := g.scanner.GetUncoveredFunctions()
+	_ = fnList
+
 	// todo: implement
 	// 1. Find in projects functions without tests code coverage.
 	// 2. Find files, read files where func placed.
