@@ -3,6 +3,7 @@ package agent
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/yvv4git/go-tests-gen/internal/usecases/tools"
 )
@@ -22,7 +23,7 @@ func (s Scanner) Name() string {
 }
 
 func (s Scanner) Description() string {
-	return `Scans recursive the go code directory for functions, 
+	return `Scans recursive the go code directory(path) for functions, 
 	which is not covered by the tests. Input: JSON with path field`
 }
 
@@ -30,6 +31,8 @@ func (s Scanner) Call(ctx context.Context, input string) (string, error) {
 	var params struct {
 		Path string `json:"path"`
 	}
+
+	fmt.Println("Input from model: ", input)
 
 	if err := json.Unmarshal([]byte(input), &params); err != nil {
 		return input, err

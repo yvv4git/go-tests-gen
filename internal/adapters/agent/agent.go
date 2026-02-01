@@ -29,7 +29,15 @@ type Agent struct {
 
 func (a *Agent) GenerateUnitTests(ctx context.Context, path string) error {
 	mem := memory.NewConversationBuffer()
+	defer func() {
+		fmt.Println("Messages:")
+		messages, err := mem.ChatHistory.Messages(ctx)
+		if err != nil {
+			fmt.Println("messages", messages)
+		}
+	}()
 
+	fmt.Println("Before setup agent")
 	agent := agents.NewConversationalAgent(
 		a.llm, []tools.Tool{
 			a.tools.scanner,
@@ -39,6 +47,7 @@ func (a *Agent) GenerateUnitTests(ctx context.Context, path string) error {
 
 	executor := agents.NewExecutor(agent)
 
+	fmt.Println("Before call")
 	response, err := executor.Call(
 		ctx,
 		map[string]any{"input": fmt.Sprintf("Scan the project code for functions not covered by tests in dir: %s", path)},

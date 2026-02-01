@@ -88,6 +88,6 @@ func runUnitTestsGenCommand(cfgFilePath, path string) {
 	gen := generator.NewGenerator(log, agent)
 
 	if err := gen.Generate(ctx, path); err != nil {
-		log.Error("Failed scan", err)
+		log.Error("Failed scan", "error", err)
 	}
 }
