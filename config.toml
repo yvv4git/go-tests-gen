@@ -1,0 +1,10 @@
+log_level = "info"
+
+[llm]
+temperature = 0.7
+max_tokens = 1000
+
+[llm.openai]
+url = "https://api.openai.com/v1"
+token = ""
+model = "gpt-4"

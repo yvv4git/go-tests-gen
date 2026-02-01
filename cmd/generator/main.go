@@ -9,7 +9,6 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/yvv4git/go-tests-gen/internal/adapters/logger"
-	"github.com/yvv4git/go-tests-gen/internal/adapters/scanner"
 	"github.com/yvv4git/go-tests-gen/internal/usecases/generator"
 )
 
@@ -37,7 +36,7 @@ func main() {
 	}
 }
 
-func runUnitTestsGenCommand(_ string) {
+func runUnitTestsGenCommand(path string) {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
@@ -47,11 +46,9 @@ func runUnitTestsGenCommand(_ string) {
 
 	log := logger.NewSlogAdapter(slogLogger)
 
-	scanner := scanner.NewCoverage("/Users/vladimireliseev/mydata/research/go-pkg-safe/") // todo: setup path
+	gen := generator.NewGenerator(log, nil)
 
-	gen := generator.NewGenerator(log, scanner)
-
-	if err := gen.Generate(ctx); err != nil {
+	if err := gen.Generate(ctx, path); err != nil {
 		log.Error("Failed scan", err)
 	}
 }

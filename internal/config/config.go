@@ -8,6 +8,7 @@ import (
 
 type Config struct {
 	LogLevel string `toml:"log_level" env:"LOG_LEVEL" default:"info"`
+	LLM      LLM    `toml:"llm"`
 }
 
 func Load(path string, cfg *Config) error {
