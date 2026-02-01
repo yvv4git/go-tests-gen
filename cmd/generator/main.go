@@ -71,11 +71,11 @@ func runUnitTestsGenCommand(cfgFilePath, path string) {
 
 	scannerAdapter := scanner.NewScanner(path)
 	scannerInbound := tools.NewScanner(scannerAdapter)
-	toolScanner := agent.NewScanner(scannerInbound)
+	scannerTool := agent.NewScanner(scannerInbound)
 
 	agent, err := agent.NewAgentBuilder().
 		SetLLM(llm).
-		SetToolScanner(toolScanner).
+		SetToolScanner(scannerTool).
 		SetOptions(agent.AgentOptions{
 			Temperature: cfg.LLM.Temperature,
 			MaxTokens:   cfg.LLM.MaxTokens,
