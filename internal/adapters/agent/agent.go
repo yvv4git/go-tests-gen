@@ -41,7 +41,7 @@ func (a *Agent) GenerateUnitTests(ctx context.Context, path string) error {
 
 	response, err := executor.Call(
 		ctx,
-		map[string]any{"input": "Просканируй код проекта на предмет непокрытых тестами функций"},
+		map[string]any{"input": "Scan the project code for functions not covered by tests"},
 		chains.WithTemperature(a.opts.Temperature),
 		chains.WithMaxTokens(a.opts.MaxTokens),
 	)

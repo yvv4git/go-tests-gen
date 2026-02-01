@@ -32,12 +32,12 @@ func (s Scanner) Call(ctx context.Context, input string) (string, error) {
 	}
 
 	if err := json.Unmarshal([]byte(input), &params); err != nil {
-		return "", err
+		return input, err
 	}
 
 	uncoveredFunctions, err := s.entity.ScanDir(ctx, params.Path)
 	if err != nil {
-		return "", err
+		return input, err
 	}
 
 	encodedResult, err := json.Marshal(uncoveredFunctions)
