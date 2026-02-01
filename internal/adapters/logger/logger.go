@@ -2,7 +2,9 @@ package logger
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
+	"os"
 
 	"github.com/yvv4git/go-tests-gen/internal/ports"
 )
@@ -45,6 +47,26 @@ func (a *SlogAdapter) WarnContext(ctx context.Context, msg string, args ...any) 
 
 func (a *SlogAdapter) ErrorContext(ctx context.Context, msg string, args ...any) {
 	a.logger.ErrorContext(ctx, msg, args...)
+}
+
+func (a *SlogAdapter) Fatal(msg string, args ...any) {
+	a.logger.Error(msg, args...)
+	os.Exit(1)
+}
+
+func (a *SlogAdapter) Fatalf(format string, args ...any) {
+	a.logger.Error(fmt.Sprintf(format, args...))
+	os.Exit(1)
+}
+
+func (a *SlogAdapter) FatalContext(ctx context.Context, msg string, args ...any) {
+	a.logger.ErrorContext(ctx, msg, args...)
+	os.Exit(1)
+}
+
+func (a *SlogAdapter) FatalfContext(ctx context.Context, format string, args ...any) {
+	a.logger.ErrorContext(ctx, fmt.Sprintf(format, args...))
+	os.Exit(1)
 }
 
 func (a *SlogAdapter) With(args ...any) ports.Logger {

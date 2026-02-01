@@ -15,19 +15,19 @@ import (
 	"github.com/yvv4git/go-tests-gen/internal/ports"
 )
 
-type Coverage struct {
+type Scanner struct {
 	path           string
 	uncoveredFuncs []ports.UncoveredFunc
 }
 
-func NewCoverage(path string) *Coverage {
-	return &Coverage{
+func NewScanner(path string) *Scanner {
+	return &Scanner{
 		path:           path,
 		uncoveredFuncs: make([]ports.UncoveredFunc, 0),
 	}
 }
 
-func (c *Coverage) Scan(ctx context.Context) error {
+func (c *Scanner) Scan(ctx context.Context) error {
 	coverProfile := c.path + "/cover.out"
 
 	cmd := exec.CommandContext(ctx, "go", "test", "-coverprofile="+coverProfile, "-covermode=atomic", "-cover", "./...")
@@ -57,7 +57,7 @@ func (c *Coverage) Scan(ctx context.Context) error {
 	return nil
 }
 
-func (c *Coverage) parseCoverProfile(coverProfile string) (map[string][][2]int, error) {
+func (c *Scanner) parseCoverProfile(coverProfile string) (map[string][][2]int, error) {
 	coveredRanges := make(map[string][][2]int)
 
 	file, err := os.Open(coverProfile)
@@ -126,7 +126,7 @@ func (c *Coverage) parseCoverProfile(coverProfile string) (map[string][][2]int, 
 	return coveredRanges, nil
 }
 
-func (c *Coverage) findUncoveredFunctions(coveredRanges map[string][][2]int) ([]ports.UncoveredFunc, error) {
+func (c *Scanner) findUncoveredFunctions(coveredRanges map[string][][2]int) ([]ports.UncoveredFunc, error) {
 	var uncovered []ports.UncoveredFunc
 
 	err := filepath.Walk(c.path, func(path string, info os.FileInfo, err error) error {
@@ -186,7 +186,7 @@ func (c *Coverage) findUncoveredFunctions(coveredRanges map[string][][2]int) ([]
 	return uncovered, err
 }
 
-func (c *Coverage) getPackageName(filePath string) string {
+func (c *Scanner) getPackageName(filePath string) string {
 	file, err := os.Open(filePath)
 	if err != nil {
 		return ""
@@ -204,7 +204,7 @@ func (c *Coverage) getPackageName(filePath string) string {
 	return ""
 }
 
-func (c *Coverage) extractFuncCode(filePath string, startLine, endLine int) string {
+func (c *Scanner) extractFuncCode(filePath string, startLine, endLine int) string {
 	file, err := os.Open(filePath)
 	if err != nil {
 		return ""
@@ -222,6 +222,6 @@ func (c *Coverage) extractFuncCode(filePath string, startLine, endLine int) stri
 	return strings.Join(lines, "\n")
 }
 
-func (c *Coverage) GetUncoveredFunctions() []ports.UncoveredFunc {
+func (c *Scanner) GetUncoveredFunctions() []ports.UncoveredFunc {
 	return c.uncoveredFuncs
 }

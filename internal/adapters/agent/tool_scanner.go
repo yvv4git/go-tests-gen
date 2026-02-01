@@ -8,10 +8,10 @@ import (
 )
 
 type Scanner struct {
-	entity tools.Scanner
+	entity *tools.Scanner
 }
 
-func NewScanner(entity tools.Scanner) *Scanner {
+func NewScanner(entity *tools.Scanner) *Scanner {
 	return &Scanner{
 		entity: entity,
 	}

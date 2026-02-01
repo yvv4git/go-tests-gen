@@ -13,6 +13,11 @@ type Logger interface {
 	WarnContext(ctx context.Context, msg string, args ...any)
 	ErrorContext(ctx context.Context, msg string, args ...any)
 
+	Fatal(msg string, args ...any)
+	Fatalf(format string, args ...any)
+	FatalContext(ctx context.Context, msg string, args ...any)
+	FatalfContext(ctx context.Context, format string, args ...any)
+
 	With(args ...any) Logger
 	WithGroup(name string) Logger
 }
