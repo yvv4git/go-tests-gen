@@ -94,7 +94,7 @@ func TestParseCoverProfile(t *testing.T) {
 			}
 			defer os.RemoveAll(tmpDir)
 
-			c := &Scanner{path: tmpDir}
+			c := NewScanner()
 
 			// Set expected map with actual tmpDir
 			expected := make(map[string][][2]int)
@@ -129,7 +129,7 @@ func TestParseCoverProfile(t *testing.T) {
 			writer.Flush()
 			tmpFile.Close()
 
-			result, err := c.parseCoverProfile(tmpFile.Name())
+			result, err := c.parseCoverProfile(tmpDir, tmpFile.Name())
 			if err != nil {
 				t.Fatalf("Unexpected error: %v", err)
 			}
@@ -167,7 +167,7 @@ func TestParseCoverProfile(t *testing.T) {
 
 // Test extractFuncCode
 func TestExtractFuncCode(t *testing.T) {
-	c := &Scanner{path: "/test"}
+	c := NewScanner()
 
 	tests := []struct {
 		name      string
@@ -215,7 +215,7 @@ func TestExtractFuncCode(t *testing.T) {
 
 // Test getPackageName
 func TestGetPackageName(t *testing.T) {
-	c := &Scanner{path: "/test"}
+	c := NewScanner()
 
 	tests := []struct {
 		name     string
@@ -342,7 +342,7 @@ func Uncovered() {}
 			}
 			defer os.RemoveAll(tmpDir)
 
-			c := &Scanner{path: tmpDir}
+			c := NewScanner()
 
 			// Adjust covered ranges to use tmpDir paths
 			adjustedRanges := make(map[string][][2]int)
@@ -358,7 +358,7 @@ func Uncovered() {}
 				}
 			}
 
-			result, err := c.findUncoveredFunctions(adjustedRanges)
+			result, err := c.findUncoveredFunctions(tmpDir, adjustedRanges)
 			if err != nil {
 				t.Fatalf("Unexpected error: %v", err)
 			}
@@ -383,12 +383,7 @@ func Uncovered() {}
 
 // Test NewCoverage
 func TestNewCoverage(t *testing.T) {
-	path := "/test/path"
-	c := NewScanner(path)
-
-	if c.path != path {
-		t.Errorf("Expected path %q, got %q", path, c.path)
-	}
+	c := NewScanner()
 
 	if c.uncoveredFuncs == nil {
 		t.Error("Expected uncoveredFuncs to be initialized")
@@ -401,7 +396,7 @@ func TestNewCoverage(t *testing.T) {
 
 // Test GetUncoveredFunctions
 func TestGetUncoveredFunctions(t *testing.T) {
-	c := NewScanner("/test")
+	c := NewScanner()
 
 	// Initially empty
 	if len(c.GetUncoveredFunctions()) != 0 {
@@ -474,10 +469,10 @@ func TestCoveredFunc(t *testing.T) {
 		t.Fatalf("Failed to write main_test.go: %v", err)
 	}
 
-	c := NewScanner(tmpDir)
+	c := NewScanner()
 	ctx := context.Background()
 
-	err = c.Scan(ctx)
+	err = c.Scan(ctx, tmpDir)
 	if err != nil {
 		t.Fatalf("Scan failed: %v", err)
 	}

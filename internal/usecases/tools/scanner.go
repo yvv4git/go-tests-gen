@@ -17,7 +17,7 @@ func NewScanner(executor ports.Scanner) *Scanner {
 }
 
 func (s *Scanner) ScanDir(ctx context.Context, dir string) ([]ports.UncoveredFunc, error) {
-	if err := s.executor.Scan(ctx); err != nil {
+	if err := s.executor.Scan(ctx, dir); err != nil {
 		return nil, err
 	}
 

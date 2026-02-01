@@ -70,7 +70,7 @@ func runUnitTestsGenCommand(cfgFilePath, path string) {
 	}
 
 	// Setup ScannerToool
-	scannerAdapter := scanner.NewScanner(path)
+	scannerAdapter := scanner.NewScanner()
 	scannerInbound := tools.NewScanner(scannerAdapter)
 	scannerTool := agent.NewScanner(scannerInbound)
 

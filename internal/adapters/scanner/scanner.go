@@ -16,22 +16,20 @@ import (
 )
 
 type Scanner struct {
-	path           string
 	uncoveredFuncs []ports.UncoveredFunc
 }
 
-func NewScanner(path string) *Scanner {
+func NewScanner() *Scanner {
 	return &Scanner{
-		path:           path,
 		uncoveredFuncs: make([]ports.UncoveredFunc, 0),
 	}
 }
 
-func (c *Scanner) Scan(ctx context.Context) error {
-	coverProfile := c.path + "/cover.out"
+func (c *Scanner) Scan(ctx context.Context, dir string) error {
+	coverProfile := dir + "/cover.out"
 
 	cmd := exec.CommandContext(ctx, "go", "test", "-coverprofile="+coverProfile, "-covermode=atomic", "-cover", "./...")
-	cmd.Dir = c.path
+	cmd.Dir = dir
 
 	// Ignore test failures, we only need coverage data
 	cmd.Run()
@@ -40,13 +38,13 @@ func (c *Scanner) Scan(ctx context.Context) error {
 		return nil
 	}
 
-	coveredRanges, err := c.parseCoverProfile(coverProfile)
+	coveredRanges, err := c.parseCoverProfile(dir, coverProfile)
 	if err != nil {
 		os.Remove(coverProfile)
 		return err
 	}
 
-	c.uncoveredFuncs, err = c.findUncoveredFunctions(coveredRanges)
+	c.uncoveredFuncs, err = c.findUncoveredFunctions(dir, coveredRanges)
 	if err != nil {
 		os.Remove(coverProfile)
 		return err
@@ -57,7 +55,7 @@ func (c *Scanner) Scan(ctx context.Context) error {
 	return nil
 }
 
-func (c *Scanner) parseCoverProfile(coverProfile string) (map[string][][2]int, error) {
+func (c *Scanner) parseCoverProfile(dir string, coverProfile string) (map[string][][2]int, error) {
 	coveredRanges := make(map[string][][2]int)
 
 	file, err := os.Open(coverProfile)
@@ -111,7 +109,7 @@ func (c *Scanner) parseCoverProfile(coverProfile string) (map[string][][2]int, e
 				continue
 			}
 
-			filePath := c.path + "/" + pos[0]
+			filePath := dir + "/" + pos[0]
 			// Add all lines in the range [startLine, endLine]
 			for line := startLine; line <= endLine; line++ {
 				coveredRanges[filePath] = append(coveredRanges[filePath], [2]int{line, line})
@@ -126,10 +124,10 @@ func (c *Scanner) parseCoverProfile(coverProfile string) (map[string][][2]int, e
 	return coveredRanges, nil
 }
 
-func (c *Scanner) findUncoveredFunctions(coveredRanges map[string][][2]int) ([]ports.UncoveredFunc, error) {
+func (c *Scanner) findUncoveredFunctions(dir string, coveredRanges map[string][][2]int) ([]ports.UncoveredFunc, error) {
 	var uncovered []ports.UncoveredFunc
 
-	err := filepath.Walk(c.path, func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -167,7 +165,7 @@ func (c *Scanner) findUncoveredFunctions(coveredRanges map[string][][2]int) ([]p
 			}
 
 			if !isCovered {
-				relPath, _ := filepath.Rel(c.path, path)
+				relPath, _ := filepath.Rel(dir, path)
 				pkg := c.getPackageName(path)
 				fnCode := c.extractFuncCode(path, funcLine, funcEndLine)
 				uncovered = append(uncovered, ports.UncoveredFunc{

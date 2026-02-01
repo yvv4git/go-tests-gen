@@ -14,7 +14,7 @@ type UncoveredFunc struct {
 
 type (
 	Scanner interface {
-		Scan(ctx context.Context) error
+		Scan(ctx context.Context, dir string) error
 		GetUncoveredFunctions() []UncoveredFunc
 	}
 )
