@@ -9,5 +9,5 @@ type LLM struct {
 type OpenAI struct {
 	URL   string `toml:"url" env:"LLM_OPENAI_URL"`
 	Token string `toml:"token" env:"LLM_OPENAI_TOKEN"`
-	Model string `toml:"model"`
+	Model string `toml:"model" env:"LLM_OPENAI_MODEL"`
 }

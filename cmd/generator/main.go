@@ -25,7 +25,7 @@ func main() {
 	}
 
 	rootCommand.PersistentFlags().StringP("config", "c", "config.toml", "Path to config file")
-	rootCommand.PersistentFlags().String("path", ".", "Path to directory to scan")
+	rootCommand.PersistentFlags().StringP("path", "p", ".", "Path to directory to scan")
 
 	unitTestsGenCommand := &cobra.Command{
 		Use:   "unit",
@@ -69,6 +69,7 @@ func runUnitTestsGenCommand(cfgFilePath, path string) {
 		log.Fatalf("Failed setup llm: %v", err)
 	}
 
+	// Setup ScannerToool
 	scannerAdapter := scanner.NewScanner(path)
 	scannerInbound := tools.NewScanner(scannerAdapter)
 	scannerTool := agent.NewScanner(scannerInbound)

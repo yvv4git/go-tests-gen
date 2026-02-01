@@ -155,6 +155,56 @@ log_level = "info"
 	}
 }
 
+func TestLLMModelFromEnv(t *testing.T) {
+	// Set LLM model from environment
+	os.Setenv("LLM_OPENAI_MODEL", "env-gpt-4o")
+	defer func() {
+		os.Unsetenv("LLM_OPENAI_MODEL")
+	}()
+
+	tmpFile, err := os.CreateTemp("", "config-*.toml")
+	require.NoError(t, err)
+	defer os.Remove(tmpFile.Name())
+
+	configContent := `
+log_level = "info"
+[llm]
+  temperature = 0.7
+  max_tokens = 1000
+  [llm.openai]
+    url = "https://api.openai.com/v1"
+    token = "file-token"
+    model = "gpt-4"
+`
+	_, err = tmpFile.WriteString(configContent)
+	require.NoError(t, err)
+	tmpFile.Close()
+
+	var cfg Config
+	err = Load(tmpFile.Name(), &cfg)
+	require.NoError(t, err)
+
+	// Expected config with model from env
+	expected := Config{
+		LogLevel: "info",
+		LLM: LLM{
+			Temperature: 0.7,
+			MaxTokens:   1000,
+			OpenAI: OpenAI{
+				URL:   "https://api.openai.com/v1",
+				Token: "file-token",
+				Model: "env-gpt-4o",
+			},
+		},
+	}
+
+	if !reflect.DeepEqual(expected, cfg) {
+		t.Logf("Expected: %+v", expected)
+		t.Logf("Actual: %+v", cfg)
+		t.FailNow()
+	}
+}
+
 func TestLLMURLFromEnv(t *testing.T) {
 	// Set LLM URL from environment
 	os.Setenv("LLM_OPENAI_URL", "https://env-url.example.com/v1")
