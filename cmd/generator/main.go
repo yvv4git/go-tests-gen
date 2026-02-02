@@ -4,9 +4,11 @@ import (
 	"context"
 	stdLog "log"
 	"log/slog"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/tmc/langchaingo/llms/openai"
@@ -60,10 +62,18 @@ func runUnitTestsGenCommand(cfgFilePath, path string) {
 
 	log := logger.NewSlogAdapter(slogLogger)
 
+	httpClient := &http.Client{
+		Transport: &http.Transport{
+			Proxy: nil, // no proxy
+		},
+		Timeout: 30 * time.Second, // todo: make it configurable
+	}
+
 	llm, err := openai.New(
 		openai.WithBaseURL(cfg.LLM.OpenAI.URL),
 		openai.WithToken(cfg.LLM.OpenAI.Token),
 		openai.WithModel(cfg.LLM.OpenAI.Model),
+		openai.WithHTTPClient(httpClient),
 	)
 	if err != nil {
 		log.Fatalf("Failed setup llm: %v", err)
@@ -88,6 +98,6 @@ func runUnitTestsGenCommand(cfgFilePath, path string) {
 	gen := generator.NewGenerator(log, agent)
 
 	if err := gen.Generate(ctx, path); err != nil {
-		log.Error("Failed scan", "error", err)
+		log.Error("Failed run generate", "error", err)
 	}
 }

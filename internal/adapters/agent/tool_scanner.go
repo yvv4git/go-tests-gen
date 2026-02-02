@@ -43,6 +43,8 @@ func (s Scanner) Call(ctx context.Context, input string) (string, error) {
 		return input, err
 	}
 
+	// spew.Dump(uncoveredFunctions)
+
 	encodedResult, err := json.Marshal(uncoveredFunctions)
 	if err != nil {
 		return "", err
