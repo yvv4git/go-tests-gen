@@ -29,13 +29,6 @@ type Agent struct {
 
 func (a *Agent) GenerateUnitTests(ctx context.Context, path string) error {
 	mem := memory.NewConversationBuffer()
-	defer func() {
-		fmt.Println("Messages:")
-		messages, err := mem.ChatHistory.Messages(ctx)
-		if err != nil {
-			fmt.Println("messages", messages)
-		}
-	}()
 
 	agent := agents.NewConversationalAgent(
 		a.llm, []tools.Tool{
@@ -56,7 +49,7 @@ func (a *Agent) GenerateUnitTests(ctx context.Context, path string) error {
 		return fmt.Errorf("execute command: %w", err)
 	}
 
-	fmt.Println("Resp: ", response)
+	fmt.Println("Resp: ", response["output"])
 
 	// todo: implement
 	return nil
