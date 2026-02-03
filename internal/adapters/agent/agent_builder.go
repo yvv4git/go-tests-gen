@@ -31,8 +31,12 @@ func (b *AgentBuilder) Build() (*Agent, error) {
 		return nil, errors.New("no set llm")
 	}
 
-	if b.tools.scanner == nil {
-		return nil, errors.New("no set scanner tool")
+	if b.tools.fileCat == nil {
+		return nil, errors.New("no set file cat tool")
+	}
+
+	if b.tools.fileUpdate == nil {
+		return nil, errors.New("no set file update tool")
 	}
 
 	entity := &Agent{
@@ -54,7 +58,12 @@ func (b *AgentBuilder) SetOptions(value AgentOptions) *AgentBuilder {
 	return b
 }
 
-func (b *AgentBuilder) SetToolScanner(value *Scanner) *AgentBuilder {
-	b.tools.scanner = value
+func (b *AgentBuilder) SetToolFileCat(value *FileCat) *AgentBuilder {
+	b.tools.fileCat = value
+	return b
+}
+
+func (b *AgentBuilder) SetToolFileUpdate(value *FileUpdate) *AgentBuilder {
+	b.tools.fileUpdate = value
 	return b
 }

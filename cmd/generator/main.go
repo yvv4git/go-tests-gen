@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/tmc/langchaingo/llms/openai"
 	"github.com/yvv4git/go-tests-gen/internal/adapters/agent"
+	"github.com/yvv4git/go-tests-gen/internal/adapters/fs"
 	"github.com/yvv4git/go-tests-gen/internal/adapters/logger"
 	"github.com/yvv4git/go-tests-gen/internal/adapters/scanner"
 	"github.com/yvv4git/go-tests-gen/internal/config"
@@ -79,14 +80,16 @@ func runUnitTestsGenCommand(cfgFilePath, path string) {
 		log.Fatalf("Failed setup llm: %v", err)
 	}
 
-	// Setup ScannerToool
 	scannerAdapter := scanner.NewScanner()
-	scannerInbound := tools.NewScanner(scannerAdapter)
-	scannerTool := agent.NewScanner(scannerInbound)
+	fsAdapter := fs.NewFS()
+	fsInbound := tools.NewFSTools(fsAdapter)
+	fileCatTool := agent.NewFileCat(fsInbound)
+	fileUpdateTool := agent.NewFileUpdate(fsInbound)
 
 	agent, err := agent.NewAgentBuilder().
 		SetLLM(llm).
-		SetToolScanner(scannerTool).
+		SetToolFileCat(fileCatTool).
+		SetToolFileUpdate(fileUpdateTool).
 		SetOptions(agent.AgentOptions{
 			Temperature: cfg.LLM.Temperature,
 			MaxTokens:   cfg.LLM.MaxTokens,
@@ -95,7 +98,7 @@ func runUnitTestsGenCommand(cfgFilePath, path string) {
 		log.Fatalf("Failes setup agent: %v", err)
 	}
 
-	gen := generator.NewGenerator(log, agent)
+	gen := generator.NewGenerator(log, scannerAdapter, agent)
 
 	if err := gen.Generate(ctx, path); err != nil {
 		log.Error("Failed run generate", "error", err)

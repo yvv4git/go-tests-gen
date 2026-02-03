@@ -8,12 +8,14 @@ import (
 	"github.com/tmc/langchaingo/chains"
 	"github.com/tmc/langchaingo/llms/openai"
 	"github.com/tmc/langchaingo/memory"
+	"github.com/yvv4git/go-tests-gen/internal/ports"
 
 	"github.com/tmc/langchaingo/tools"
 )
 
 type AgentTools struct {
-	scanner *Scanner
+	fileCat    *FileCat
+	fileUpdate *FileUpdate
 }
 
 type AgentOptions struct {
@@ -27,12 +29,13 @@ type Agent struct {
 	opts  AgentOptions
 }
 
-func (a *Agent) GenerateUnitTests(ctx context.Context, path string) error {
+func (a *Agent) GenerateUnitTests(ctx context.Context, params *ports.ParamsGenerateUnitTests) error {
 	mem := memory.NewConversationBuffer()
 
 	agent := agents.NewConversationalAgent(
 		a.llm, []tools.Tool{
-			a.tools.scanner,
+			a.tools.fileCat,
+			a.tools.fileUpdate,
 		},
 		agents.WithMemory(mem),
 	)
@@ -41,7 +44,7 @@ func (a *Agent) GenerateUnitTests(ctx context.Context, path string) error {
 
 	response, err := executor.Call(
 		ctx,
-		map[string]any{"input": fmt.Sprintf("Scan the project code for functions not covered by tests in dir: %s", path)},
+		map[string]any{"input": a.setupPromptGenUnitTest(params)},
 		chains.WithTemperature(a.opts.Temperature),
 		chains.WithMaxTokens(a.opts.MaxTokens),
 	)
@@ -53,4 +56,24 @@ func (a *Agent) GenerateUnitTests(ctx context.Context, path string) error {
 
 	// todo: implement
 	return nil
+}
+
+func (a *Agent) setupPromptGenUnitTest(params *ports.ParamsGenerateUnitTests) string {
+	return fmt.Sprintf(`
+You are a Go testing expert. Your task is to write a unit test for a specific function in a Go file.
+
+INPUT DATA:
+- File path: %s
+- Function code to test:
+%s
+
+INSTRUCTIONS:
+1. Write unit tests using the standard Go testing package
+2. Create a complete _test.go file for the specified function
+3. Use table-driven tests where appropriate
+4. Cover edge cases and error conditions
+5. Use the same package name as the source file
+6. Output ONLY the complete test file content, no explanations, no markdown backticks
+
+Write the complete unit test file now:`, params.FilePath, params.FnCode)
 }

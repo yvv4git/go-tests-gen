@@ -3,7 +3,10 @@ package config
 import (
 	"fmt"
 
+	stdLog "log"
+
 	"github.com/ilyakaznacheev/cleanenv"
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
@@ -12,6 +15,10 @@ type Config struct {
 }
 
 func Load(path string, cfg *Config) error {
+	if err := godotenv.Load(); err != nil {
+		stdLog.Println("Failed read .env file")
+	}
+
 	if err := cleanenv.ReadConfig(path, cfg); err != nil {
 		return fmt.Errorf("read config: %w", err)
 	}
