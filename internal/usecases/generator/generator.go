@@ -45,7 +45,6 @@ func (g *Generator) Generate(ctx context.Context, path string) error {
 
 	err := g.agent.GenerateUnitTests(ctx, &ports.ParamsGenerateUnitTests{
 		FilePath: fn.File,
-		FnCode:   fn.FnCode,
 	})
 	if err != nil {
 		return fmt.Errorf("generate unit test with LLM agent: %w", err)

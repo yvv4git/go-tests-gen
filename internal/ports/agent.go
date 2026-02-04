@@ -3,8 +3,7 @@ package ports
 import "context"
 
 type ParamsGenerateUnitTests struct {
-	FilePath string
-	FnCode   string
+	FilePath string // путь к исходному файлу с функцией
 }
 
 type Agent interface {
