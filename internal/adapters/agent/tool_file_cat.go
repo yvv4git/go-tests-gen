@@ -24,7 +24,14 @@ func (f FileCat) Name() string {
 }
 
 func (f FileCat) Description() string {
-	return `The file_cat utility reads the file using the specified file path. Returns the entire contents of the file.`
+	return `The file_cat utility reads the file using the specified file path.
+
+Input format (JSON):
+{
+    "path": "<absolute_path_to_file>"
+}
+
+Returns the entire contents of the file as a string.`
 }
 
 func (f FileCat) Call(ctx context.Context, input string) (string, error) {

@@ -67,13 +67,22 @@ INPUT DATA:
 - Function code to test:
 %s
 
+TOOLS AVAILABLE:
+1. file_cat - Read file contents
+   Format: {"path": "<absolute_path>"}
+2. file_update - Create or update file
+   Format: {"path": "<absolute_path>", "content": "<file_content>"}
+
 INSTRUCTIONS:
-1. Write unit tests using the standard Go testing package
-2. Create a complete _test.go file for the specified function
-3. Use table-driven tests where appropriate
-4. Cover edge cases and error conditions
-5. Use the same package name as the source file
-6. Output ONLY the complete test file content, no explanations, no markdown backticks
+1. First, use file_cat to read the source file and understand the package structure
+2. Write unit tests using the standard Go testing package
+3. Create a complete _test.go file for the specified function
+4. Use table-driven tests where appropriate
+5. Cover edge cases and error conditions
+6. Use the same package name as the source file
+7. Output ONLY the complete test file content, no explanations, no markdown backticks
+
+IMPORTANT: When calling tools, always use the exact JSON format shown above.
 
 Write the complete unit test file now:`, params.FilePath, params.FnCode)
 }

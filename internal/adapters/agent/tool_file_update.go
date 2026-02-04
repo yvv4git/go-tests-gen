@@ -24,7 +24,15 @@ func (f *FileUpdate) Name() string {
 }
 
 func (f *FileUpdate) Description() string {
-	return `The file_update utility that replaces the contents of the specified file with the contents specified in the arguments.`
+	return `The file_update utility that creates or replaces the contents of a file.
+
+Input format (JSON):
+{
+    "path": "<absolute_path_to_file>",
+    "content": "<file_content>"
+}
+
+Returns a success message.`
 }
 
 func (f *FileUpdate) Call(ctx context.Context, input string) (string, error) {

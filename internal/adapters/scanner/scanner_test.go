@@ -26,7 +26,7 @@ func (m *mockFileInfo) Size() int64        { return m.size }
 func (m *mockFileInfo) Mode() os.FileMode  { return m.mode }
 func (m *mockFileInfo) ModTime() time.Time { return m.modTime }
 func (m *mockFileInfo) IsDir() bool        { return m.isDir }
-func (m *mockFileInfo) Sys() interface{}   { return nil }
+func (m *mockFileInfo) Sys() any           { return nil }
 
 // Test parseCoverProfile - tests with correct cover profile format
 // Real format: file.go:startLine.startCol,endLine.endCol stmtCount count
@@ -372,6 +372,10 @@ func Uncovered() {}
 				var gotNames []string
 				for _, f := range result {
 					gotNames = append(gotNames, f.Name)
+					// Verify File contains absolute path
+					if !filepath.IsAbs(f.File) {
+						t.Errorf("Expected absolute path for %s, got %s", f.Name, f.File)
+					}
 				}
 				if len(gotNames) != len(tt.expectedFuncNames) {
 					t.Errorf("Expected %d function names, got %d", len(tt.expectedFuncNames), len(gotNames))
@@ -403,9 +407,16 @@ func TestGetUncoveredFunctions(t *testing.T) {
 		t.Error("Expected empty list initially")
 	}
 
-	// After setting
+	// Create a temp file to get absolute path
+	tmpFile, err := os.CreateTemp("", "test_*.go")
+	if err != nil {
+		t.Fatalf("Failed to create temp file: %v", err)
+	}
+	defer os.Remove(tmpFile.Name())
+
+	// After setting with absolute path
 	c.uncoveredFuncs = []ports.UncoveredFunc{
-		{Package: "main", File: "file.go", Name: "TestFunc", Line: 10, FnCode: "func TestFunc() {}"},
+		{Package: "main", File: tmpFile.Name(), Name: "TestFunc", Line: 10, FnCode: "func TestFunc() {}"},
 	}
 
 	result := c.GetUncoveredFunctions()
@@ -415,6 +426,11 @@ func TestGetUncoveredFunctions(t *testing.T) {
 
 	if result[0].Name != "TestFunc" {
 		t.Errorf("Expected function name TestFunc, got %s", result[0].Name)
+	}
+
+	// Verify File contains absolute path (should start with / or be a full path)
+	if !filepath.IsAbs(result[0].File) {
+		t.Errorf("Expected absolute path, got %s", result[0].File)
 	}
 }
 
@@ -486,6 +502,11 @@ func TestCoveredFunc(t *testing.T) {
 	for _, f := range funcs {
 		if f.Name == "UncoveredFunc" {
 			found = true
+			// Verify File contains absolute path
+			if !filepath.IsAbs(f.File) {
+				t.Errorf("Expected absolute path for %s, got %s", f.Name, f.File)
+			}
+			t.Logf("Found uncovered function: %s at %s:%d", f.Name, f.File, f.Line)
 			break
 		}
 	}

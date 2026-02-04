@@ -165,12 +165,11 @@ func (c *Scanner) findUncoveredFunctions(dir string, coveredRanges map[string][]
 			}
 
 			if !isCovered {
-				relPath, _ := filepath.Rel(dir, path)
 				pkg := c.getPackageName(path)
 				fnCode := c.extractFuncCode(path, funcLine, funcEndLine)
 				uncovered = append(uncovered, ports.UncoveredFunc{
 					Package: pkg,
-					File:    relPath,
+					File:    path, // полный путь к файлу
 					Name:    fn.Name.Name,
 					Line:    funcLine,
 					FnCode:  fnCode,
