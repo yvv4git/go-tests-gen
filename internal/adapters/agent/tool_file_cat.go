@@ -9,21 +9,21 @@ import (
 	"github.com/yvv4git/go-tests-gen/internal/usecases/tools"
 )
 
-type FileCat struct {
+type FileCatTool struct {
 	entity *tools.FSTools
 }
 
-func NewFileCat(entity *tools.FSTools) *FileCat {
-	return &FileCat{
+func NewFileCatTool(entity *tools.FSTools) *FileCatTool {
+	return &FileCatTool{
 		entity: entity,
 	}
 }
 
-func (f FileCat) Name() string {
+func (f FileCatTool) Name() string {
 	return "file_cat"
 }
 
-func (f FileCat) Description() string {
+func (f FileCatTool) Description() string {
 	return `The file_cat utility reads the file using the specified file path.
 
 Input format (JSON):
@@ -34,7 +34,7 @@ Input format (JSON):
 Returns the entire contents of the file as a string.`
 }
 
-func (f FileCat) Call(ctx context.Context, input string) (string, error) {
+func (f FileCatTool) Call(ctx context.Context, input string) (string, error) {
 	var params struct {
 		Path string `json:"path"`
 	}

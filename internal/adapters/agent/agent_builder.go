@@ -39,6 +39,10 @@ func (b *AgentBuilder) Build() (*Agent, error) {
 		return nil, errors.New("no set file update tool")
 	}
 
+	if b.tools.runGoTest == nil {
+		return nil, errors.New("no set run go test tool")
+	}
+
 	entity := &Agent{
 		llm:   b.llm,
 		tools: b.tools,
@@ -58,12 +62,17 @@ func (b *AgentBuilder) SetOptions(value AgentOptions) *AgentBuilder {
 	return b
 }
 
-func (b *AgentBuilder) SetToolFileCat(value *FileCat) *AgentBuilder {
+func (b *AgentBuilder) SetToolFileCat(value *FileCatTool) *AgentBuilder {
 	b.tools.fileCat = value
 	return b
 }
 
-func (b *AgentBuilder) SetToolFileUpdate(value *FileUpdate) *AgentBuilder {
+func (b *AgentBuilder) SetToolFileUpdate(value *FileUpdateTool) *AgentBuilder {
 	b.tools.fileUpdate = value
+	return b
+}
+
+func (b *AgentBuilder) SetToolRunGoTest(value *RunGoTestTool) *AgentBuilder {
+	b.tools.runGoTest = value
 	return b
 }

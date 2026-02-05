@@ -9,21 +9,21 @@ import (
 	"github.com/yvv4git/go-tests-gen/internal/usecases/tools"
 )
 
-type FileUpdate struct {
+type FileUpdateTool struct {
 	entity *tools.FSTools
 }
 
-func NewFileUpdate(entity *tools.FSTools) *FileUpdate {
-	return &FileUpdate{
+func NewFileUpdateTool(entity *tools.FSTools) *FileUpdateTool {
+	return &FileUpdateTool{
 		entity: entity,
 	}
 }
 
-func (f *FileUpdate) Name() string {
+func (f *FileUpdateTool) Name() string {
 	return "file_update"
 }
 
-func (f *FileUpdate) Description() string {
+func (f *FileUpdateTool) Description() string {
 	return `The file_update utility that creates or replaces the contents of a file.
 
 Input format (JSON):
@@ -35,7 +35,7 @@ Input format (JSON):
 Returns a success message.`
 }
 
-func (f *FileUpdate) Call(ctx context.Context, input string) (string, error) {
+func (f *FileUpdateTool) Call(ctx context.Context, input string) (string, error) {
 	var params struct {
 		Path    string `json:"path"`
 		Content string `json:"content"`
@@ -53,11 +53,9 @@ func (f *FileUpdate) Call(ctx context.Context, input string) (string, error) {
 		return "", fmt.Errorf("update file [%s]: %w", params.Path, err)
 	}
 
-	var response struct {
-		Msg string `json:"msg"`
+	response := ResponseMessage{
+		Msg: "success",
 	}
-
-	response.Msg = "success"
 
 	encodedResponse, err := json.Marshal(&response)
 	if err != nil {

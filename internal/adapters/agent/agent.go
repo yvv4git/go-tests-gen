@@ -13,8 +13,9 @@ import (
 )
 
 type AgentTools struct {
-	fileCat    *FileCat
-	fileUpdate *FileUpdate
+	fileCat    *FileCatTool
+	fileUpdate *FileUpdateTool
+	runGoTest  *RunGoTestTool
 }
 
 type AgentOptions struct {
@@ -34,6 +35,7 @@ func (a *Agent) GenerateUnitTests(ctx context.Context, params *ports.ParamsGener
 		[]tools.Tool{
 			a.tools.fileCat,
 			a.tools.fileUpdate,
+			a.tools.runGoTest,
 		},
 	)
 
@@ -61,36 +63,12 @@ You are a Go testing expert. Your goal is to write unit tests for uncovered func
 
 Source file path: %s
 
-You have access to the following tools:
-
-1. file_cat - Read file contents
-   Use this tool to read the source file first.
-   Input: {"path": "full_path_to_file"}
-
-2. file_update - Create or update file
-   Use this tool to save the generated test file.
-   Input: {"path": "full_path_to_test_file", "content": "complete_test_code"}
-
 Your task:
-1. First, use file_cat to read: %s
+1. Read the source file using the available tools
 2. Analyze the code and identify functions that need tests
 3. Write complete unit tests using Go testing package
 4. Save tests to a _test.go file in the same directory
-   - If source is /path/to/file.go, test should be /path/to/file_test.go
+5. Verify tests work correctly
 
-IMPORTANT:
-- After generating test code, you MUST use file_update tool to save it
-- content should be the COMPLETE test file content (no markdown backticks, no explanations)
-- DO NOT output test code directly - use file_update tool
-
-Example:
-Thought: I need to read the source file first.
-Action: file_cat
-Action Input: {"path": "/path/to/source.go"}
-
-Thought: Now I need to save the test file.
-Action: file_update
-Action Input: {"path": "/path/to/source_test.go", "content": "package pkg\n\nimport \"testing\"\n\nfunc TestFunc(t *testing.T) {}"}
-
-Begin now.`, params.FilePath, params.FilePath)
+Begin now.`, params.FilePath)
 }

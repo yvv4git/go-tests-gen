@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/tmc/langchaingo/llms/openai"
 	"github.com/yvv4git/go-tests-gen/internal/adapters/agent"
+	"github.com/yvv4git/go-tests-gen/internal/adapters/executor"
 	"github.com/yvv4git/go-tests-gen/internal/adapters/fs"
 	"github.com/yvv4git/go-tests-gen/internal/adapters/logger"
 	"github.com/yvv4git/go-tests-gen/internal/adapters/scanner"
@@ -82,14 +83,20 @@ func runUnitTestsGenCommand(cfgFilePath, path string) {
 
 	scannerAdapter := scanner.NewScanner()
 	fsAdapter := fs.NewFS()
+	execAdapter := executor.NewExecutor()
 	fsInbound := tools.NewFSTools(fsAdapter)
-	fileCatTool := agent.NewFileCat(fsInbound)
-	fileUpdateTool := agent.NewFileUpdate(fsInbound)
+	runGoTestInbound := tools.NewExecTools(execAdapter)
+
+	// Tools
+	fileCatTool := agent.NewFileCatTool(fsInbound)
+	fileUpdateTool := agent.NewFileUpdateTool(fsInbound)
+	runGoTestTool := agent.NewRunGoTestTool(runGoTestInbound)
 
 	agent, err := agent.NewAgentBuilder().
 		SetLLM(llm).
 		SetToolFileCat(fileCatTool).
 		SetToolFileUpdate(fileUpdateTool).
+		SetToolRunGoTest(runGoTestTool).
 		SetOptions(agent.AgentOptions{
 			Temperature: cfg.LLM.Temperature,
 			MaxTokens:   cfg.LLM.MaxTokens,
