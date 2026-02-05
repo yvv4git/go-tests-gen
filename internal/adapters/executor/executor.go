@@ -1,7 +1,9 @@
 package executor
 
 import (
+	"bytes"
 	"context"
+	"fmt"
 	"os/exec"
 	"path/filepath"
 
@@ -15,13 +17,36 @@ func NewExecutor() *Executor {
 }
 
 func (e *Executor) runGoUnitTest(ctx context.Context, sourceFilePath, testFuncName string) error {
+	// dir is the package directory (e.g., /path/to/project/pkg)
 	dir := filepath.Dir(sourceFilePath)
+	// cmd.Dir is the project root (parent of package directory)
+	projectRoot := filepath.Dir(dir)
 
-	// Create command: go test -run TestName ./path/to/package
-	cmd := exec.CommandContext(ctx, "go", "test", "-run", testFuncName, "./"+dir)
-	cmd.Dir = filepath.Dir(sourceFilePath) + "/.."
+	// pkgPath is relative path from project root to package (e.g., ./pkg)
+	pkgPath := "." + string(filepath.Separator) + filepath.Base(dir)
 
-	return cmd.Run()
+	// Create command: go test -run TestName ./pkg
+	cmd := exec.CommandContext(ctx, "go", "test", "-run", testFuncName, pkgPath)
+	cmd.Dir = projectRoot
+
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+
+	if err := cmd.Run(); err != nil {
+		// Include stdout and stderr in error message
+		stderrStr := stderr.String()
+		if stderrStr == "" {
+			stderrStr = "(no stderr output)"
+		}
+		stdoutStr := stdout.String()
+		if stdoutStr == "" {
+			stdoutStr = "(no stdout output)"
+		}
+		return fmt.Errorf("go test failed: stdout=%s, stderr=%s, err=%w", stdoutStr, stderrStr, err)
+	}
+
+	return nil
 }
 
 func (e *Executor) RunGoUnitTest(ctx context.Context, params *ports.ParamsRunGoUnitTest) (*ports.ResultRunGoUnitTest, error) {
